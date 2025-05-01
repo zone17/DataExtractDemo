@@ -48,7 +48,7 @@ const formatNumber = (value) => {
     return value; // Fallback
   };
 
-// Field styles to match the image
+// Field styles restored
 const fieldSx = {
     "& .MuiFilledInput-root": {
         backgroundColor: '#FEF9C3', // Light yellow background
@@ -75,20 +75,20 @@ const fieldSx = {
       }
 };
 
-// Helper to render a read-only TextField styled like the image
+// Helper restored to render styled filled TextField
 const renderStyledTextField = (label, value, formatter = formatNumber) => (
     <TextField
       label={label}
       value={formatter(value)}
-      variant="filled"
+      variant="filled" // Changed back to filled
       fullWidth
       margin="dense"
       InputProps={{
         readOnly: true,
-        disableUnderline: true // Explicitly disable underline
+        disableUnderline: true // Re-added explicit disable underline
       }}
-      sx={fieldSx} // Apply the custom styles
-      InputLabelProps={{ shrink: true }} // Ensure label stays shrunk
+      sx={fieldSx} // Re-added custom sx
+      InputLabelProps={{ shrink: true }} // Re-added label shrink
     />
   );
 
@@ -110,7 +110,7 @@ const PayrollDisplay = ({ data }) => {
   const totals = record.totals || {};
 
   return (
-    <Card sx={{ maxWidth: 700, margin: 'auto', mt: 4, boxShadow: 3, backgroundColor: '#F9FAFB' /* Match Card background if needed */ }}>
+    <Card sx={{ maxWidth: 700, margin: 'auto', mt: 4 , boxShadow: 3, backgroundColor: '#F9FAFB' }}>
       <CardContent sx={{ p: 3 /* Add padding like the image */ }}>
         {/* Mimic title style from image */}
         <Typography variant="h6" component="div" gutterBottom sx={{ fontWeight: 'bold', mb: 0.5 }}>
@@ -126,61 +126,52 @@ const PayrollDisplay = ({ data }) => {
         </Typography> */}
 
         {/* Grid for Name Fields */}
-        <Grid container spacing={2.5} sx={{ mb: 2 }}> {/* Add bottom margin before next grid */}
+        <Grid container spacing={2.5} sx={{ mb: 2 }}>
            <Grid item xs={12} sm={6}>
-                {renderStyledTextField('First Name', name.firstname, formatNumber)} {/* formatNumber is fine for names */}
+                {renderStyledTextField('First Name', name.firstname, formatNumber)}
            </Grid>
            <Grid item xs={12} sm={6}>
                {renderStyledTextField('Last Name', name.lastname, formatNumber)}
            </Grid>
         </Grid>
 
-        <Grid container spacing={2.5}> {/* Adjust spacing to match image */}
-          {/* Earnings Section */}
-          <Grid item xs={12} sm={6}>
-            {/* <Typography variant="subtitle1" gutterBottom sx={{ mb: 1 }}> Earnings </Typography> */}
-            <Box>
-              {renderStyledTextField('Regular Hours', earnings.regular_hours)}
-              {renderStyledTextField('Regular Earnings', earnings.regular_earnings, formatCurrency)}
-              {renderStyledTextField('Gross Pay', earnings.gross, formatCurrency)}
-            </Box>
-          </Grid>
+        {/* Main data grid */}
+        <Grid container spacing={3}>
+          {[ // Array of field configurations
+            { label: 'Regular Hours', value: earnings.regular_hours, formatter: formatNumber },
+            { label: 'Federal Income Tax', value: employeeTaxes.federal_income_tax, formatter: formatCurrency },
+            { label: 'Social Security (Employer)', value: employerTaxes.social_security, formatter: formatCurrency },
 
-          {/* Employee Taxes Section */}
-          <Grid item xs={12} sm={6}>
-            {/* <Typography variant="subtitle1" gutterBottom sx={{ mb: 1 }}> Employee Taxes </Typography> */}
-             <Box>
-              {renderStyledTextField('Federal Income Tax', employeeTaxes.federal_income_tax, formatCurrency)}
-              {renderStyledTextField('Social Security (Employee)', employeeTaxes.social_security, formatCurrency)}
-              {renderStyledTextField('Medicare (Employee)', employeeTaxes.medicare, formatCurrency)}
-              {renderStyledTextField('CA State Income Tax', employeeTaxes.ca_state_income_tax, formatCurrency)}
-              {renderStyledTextField('CA SDI', employeeTaxes.ca_sdi, formatCurrency)}
-              {renderStyledTextField('Total Employee Taxes', employeeTaxes.total, formatCurrency)}
-             </Box>
-          </Grid>
+            { label: 'Regular Earnings', value: earnings.regular_earnings, formatter: formatCurrency },
+            { label: 'Social Security (Employee)', value: employeeTaxes.social_security, formatter: formatCurrency },
+            { label: 'Medicare (Employer)', value: employerTaxes.medicare, formatter: formatCurrency },
 
-          {/* Employer Taxes Section */}
-           <Grid item xs={12} sm={6}>
-            {/* <Typography variant="subtitle1" gutterBottom sx={{ mb: 1 }}> Employer Taxes </Typography> */}
-             <Box>
-               {renderStyledTextField('Social Security (Employer)', employerTaxes.social_security, formatCurrency)}
-               {renderStyledTextField('Medicare (Employer)', employerTaxes.medicare, formatCurrency)}
-               {renderStyledTextField('CA ETT', employerTaxes['ca ett'], formatCurrency)}
-               {renderStyledTextField('CA SUI', employerTaxes.ca_sui, formatCurrency)}
-               {renderStyledTextField('FUTA', employerTaxes.futa, formatCurrency)}
-               {renderStyledTextField('Total Employer Taxes', employerTaxes.total, formatCurrency)}
-            </Box>
-          </Grid>
+            { label: 'Gross Pay', value: earnings.gross, formatter: formatCurrency },
+            { label: 'Medicare (Employee)', value: employeeTaxes.medicare, formatter: formatCurrency },
+            { label: 'CA ETT', value: employerTaxes['ca ett'], formatter: formatCurrency },
 
-          {/* Totals Section */}
-          <Grid item xs={12} sm={6}>
-            {/* <Typography variant="subtitle1" gutterBottom sx={{ mb: 1 }}> Totals </Typography> */}
-             <Box>
-              {renderStyledTextField('Net Pay', totals.net_pay, formatCurrency)}
-              {renderStyledTextField('Check Amount', totals.check_amount, formatCurrency)}
-              {renderStyledTextField('Total Employer Cost', totals.employer_cost, formatCurrency)}
-            </Box>
-          </Grid>
+            // Empty placeholder for alignment if needed, or start next row
+            { label: 'CA State Income Tax', value: employeeTaxes.ca_state_income_tax, formatter: formatCurrency },
+            { label: 'CA SUI', value: employerTaxes.ca_sui, formatter: formatCurrency },
+
+            // Empty placeholder
+            { label: 'CA SDI', value: employeeTaxes.ca_sdi, formatter: formatCurrency },
+            { label: 'FUTA', value: employerTaxes.futa, formatter: formatCurrency },
+
+            // Empty placeholder
+            { label: 'Total Employee Taxes', value: employeeTaxes.total, formatter: formatCurrency },
+            { label: 'Total Employer Taxes', value: employerTaxes.total, formatter: formatCurrency },
+
+            { label: 'Net Pay', value: totals.net_pay, formatter: formatCurrency },
+            { label: 'Check Amount', value: totals.check_amount, formatter: formatCurrency },
+            { label: 'Total Employer Cost', value: totals.employer_cost, formatter: formatCurrency },
+
+          ].map((field, index) => (
+            // Render an empty span or the actual field - Logic simplified
+            <Grid item key={field.label || `field-${index}`} xs={12} sm={6} md={4}>
+                {renderStyledTextField(field.label, field.value, field.formatter)}
+            </Grid>
+          ))}
         </Grid>
       </CardContent>
     </Card>
